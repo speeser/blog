@@ -9,5 +9,6 @@
             {% endif %}
             <h1>{{ post.title }}</h1>
             <p>{{ post.text|linebreaks }}</p>
+            <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
         </div>  
 {% endblock %}
