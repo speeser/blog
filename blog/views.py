@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, render_to_response, get_object_or_404, redirect
 from django.utils import timezone
+from django.http import HttpResponse
+from django.template import RequestContext
 from .models import Post
 from .forms import PostForm
 
@@ -30,6 +32,23 @@ def post_new(request):
     else:
         form  = PostForm()
     return render( request, 'blog/post_edit.html', {'form': form})
+
+@login_required
+def post_edit(request, pk=None):
+    if pk:
+        post = get_object_or_404(Post, pk=pk)
+        if post.author != request.user:
+            return HttpResponseForbidden()
+    else:
+        post = Post(author=request.user)
+
+    form = PostForm(request.POST or None, instance=post)
+    if request.POST:
+        if form.is_valid():
+            form.save()
+            return redirect('post_detail', pk=post.pk)
+
+    return render_to_response( 'blog/post_edit.html', { 'form': form}, context_instance=RequestContext(request))
 
 @login_required
 def post_remove(request, pk):
